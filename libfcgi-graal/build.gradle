@@ -1,0 +1,9 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    implementation project(':cgi-api'), project(':plain-cgi')
+    implementation group: 'org.graalvm.sdk', name: 'graal-sdk', version: '20.2.0'
+
+}

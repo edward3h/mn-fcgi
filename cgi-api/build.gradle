@@ -1,0 +1,8 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    // source of nullability annotations
+    compile group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.2'
+}

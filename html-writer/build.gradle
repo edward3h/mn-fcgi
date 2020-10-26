@@ -1,0 +1,30 @@
+plugins {
+    id 'idea'
+}
+
+sourceSets {
+    javaPoet {
+        java.srcDir 'src/javaPoet/java'
+    }
+    main {
+        java.srcDir "${buildDir}/generated-sources/"
+    }
+}
+
+dependencies {
+    implementation 'com.github.edward3h:ethelred_util:v0.2'
+    javaPoetImplementation 'com.squareup:javapoet:1.13.0'
+}
+
+idea.module {
+    scopes.PROVIDED.plus += [ configurations.javaPoetCompileClasspath ]
+}
+
+task javaPoetGenerate(type: JavaExec) {
+    dependsOn compileJavaPoetJava
+    main = 'org.ethelred.html_writer.codegen.CodeGen'
+    classpath = sourceSets.javaPoet.runtimeClasspath
+    args "${buildDir}/generated-sources/"
+}
+
+compileJava.dependsOn(javaPoetGenerate)

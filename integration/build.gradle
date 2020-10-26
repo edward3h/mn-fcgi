@@ -1,0 +1,87 @@
+plugins {
+    id 'java'
+    id 'distribution'
+}
+
+dependencies {
+    implementation project(":cgi-api"), project(':plain-cgi'), project(':libfcgi-graal'), project(':html-writer')
+    testImplementation "com.agorapulse:gru-http:0.8.4"
+}
+
+
+[
+        'HelloWorldCgi': 'hello_world.cgi',
+        'HelloWorldFcgi': 'hello_world.fcgi'
+].each { className, scriptName ->
+    task "startScript${className}"(type: CreateStartScripts) {
+        description "Generate start script"
+        applicationName = scriptName
+        outputDir = file("build/scripts")
+        mainClassName = "org.ethelred.cgi.examples.${className}"
+        //https://stackoverflow.com/questions/43937169/gradle-application-plugin-with-multiple-main-classes/46938169
+        classpath = project.tasks.getAt(JavaPlugin.JAR_TASK_NAME).outputs.files.plus(project.configurations.getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME))
+    }
+}
+
+installDist.dependsOn tasks.matching { it.name.startsWith "startScript" }
+
+distributions {
+    main {
+        contents {
+            from(project.tasks.getAt(JavaPlugin.JAR_TASK_NAME).outputs.files.plus(project.configurations.getByName(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME))) {
+                into 'lib'
+            }
+            from('build/scripts') {
+                into 'bin'
+            }
+        }
+    }
+}
+
+ext {
+    imageName = "integration"
+    containerName = "rosie"
+    httpExternalPort = 8088
+}
+
+task dockerStop(type: Exec) {
+    ignoreExitValue true
+    commandLine("docker", "exec", containerName, "apache2ctl", "stop")
+}
+
+task dockerBuild(type: Exec) {
+    dependsOn dockerStop
+    commandLine("docker", "build", "-t", imageName, "$projectDir/docker")
+}
+
+task dockerStart(type: Exec) {
+    dependsOn dockerBuild, installDist
+    outputs.dir("$buildDir/logs")
+    def args = ["docker", "run"]
+    if (!project.hasProperty("noDetach")) {
+        args.addAll("-d", "--rm")
+    }
+    args.addAll(
+            "--name", containerName,
+            "-p", "$httpExternalPort:80",
+            "--mount", "type=bind,source=$buildDir/install/integration,target=/var/www/html/test",
+            "--mount", "type=bind,source=$buildDir/logs,target=/var/log/apache2",
+            imageName
+    )
+    commandLine(args)
+}
+
+task nativeImage(type: Exec) {
+    dependsOn installDist, dockerStart
+    onlyIf { !project.hasProperty("noDetach") }
+    commandLine(
+            "docker", "exec", containerName,
+            "native-image", "--no-fallback", "--allow-incomplete-classpath",
+            "-cp", fileTree("$buildDir/install/integration/lib").asPath.replaceAll("$buildDir/install/integration", "/var/www/html/test"),
+            "org.ethelred.cgi.examples.HelloWorldFcgi",
+            "/var/www/html/test/native/hello_world.fcgi"
+    )
+}
+
+
+test.dependsOn dockerStart, nativeImage
