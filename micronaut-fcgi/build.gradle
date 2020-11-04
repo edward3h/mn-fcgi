@@ -1,0 +1,12 @@
+
+dependencies {
+    implementation project(':cgi-api'), project(':libfcgi-graal')
+    implementation group: 'io.micronaut', name: 'micronaut-runtime', version: '2.1.2'
+    implementation 'io.micronaut:micronaut-http-server:2.1.2'
+    implementation group: 'io.netty', name: 'netty-codec-http', version: '4.1.53.Final'
+    implementation 'com.google.guava:guava:28.0-jre'
+
+    annotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
+    annotationProcessor "io.micronaut:micronaut-inject-java"
+    annotationProcessor "io.micronaut:micronaut-graal"
+}

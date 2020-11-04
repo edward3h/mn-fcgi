@@ -13,16 +13,19 @@ import java.util.concurrent.TimeUnit;
  */
 public class PlainCgiServer implements CgiServer
 {
+    private Callback callback;
+
     @Override
-    public void init()
+    public void init(Callback callback)
     {
-        // no-op
+        this.callback = callback;
     }
 
     @Override
     public void start(CgiHandler handler)
     {
         handler.handleRequest(new SystemCgiRequest());
+        callback.onCompleted();
     }
 
     @Override
@@ -41,5 +44,12 @@ public class PlainCgiServer implements CgiServer
     public void waitForCompletion(long timeout, TimeUnit unit)
     {
         // no-op
+    }
+
+    @Override
+    public boolean isRunning()
+    {
+        // kinda, since it doesn't continue running after handling a request
+        return false;
     }
 }

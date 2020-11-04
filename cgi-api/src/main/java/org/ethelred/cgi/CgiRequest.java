@@ -6,6 +6,8 @@ import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * TODO
@@ -24,8 +26,18 @@ public interface CgiRequest
     }
 
     @CheckForNull
-    default String getParam(CgiParam param) {
-        return getParam(param.name());
+    default String getParam(ParamName param) {
+        return getParam(param.getName());
+    }
+
+    @Nonnull
+    default String getRequiredParam(ParamName param) {
+        return Objects.requireNonNull(getParam(param), "Missing required parameter " + param.getName());
+    }
+
+    @Nonnull
+    default Optional<String> getOptionalParam(ParamName param) {
+        return Optional.ofNullable(getParam(param));
     }
 
     @Nullable

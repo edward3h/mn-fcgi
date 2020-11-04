@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
  */
 public interface CgiServer
 {
-    void init();
+    void init(Callback callback);
 
     void start(CgiHandler handler);
 
@@ -19,4 +19,16 @@ public interface CgiServer
     boolean isSingleRequest();
 
     void waitForCompletion(long timeout, TimeUnit unit);
+
+    boolean isRunning();
+
+    interface Callback {
+        void onCompleted();
+
+        static Callback ignore() {
+            return () -> {
+                // ignore
+            };
+        }
+    }
 }

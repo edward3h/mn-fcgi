@@ -7,7 +7,7 @@ RUN apt-get update -y && \
     procps curl wget unzip nano jq lsb-release ca-certificates apt-transport-https dialog gnupg2 libc6 libgcc1 \
     libgssapi-krb5-2 libicu[0-9][0-9] liblttng-ust0 libstdc++6 zlib1g  libz-dev zlib1g-dev locales sudo zip && \
     rm -rf /var/lib/apt/lists/* && \
-    a2enmod cgid && \
+    a2enmod cgid && a2enmod rewrite && \
     git clone https://github.com/FastCGI-Archives/mod_fastcgi.git && \
     cd mod_fastcgi && \
     cp Makefile.AP2 Makefile && \

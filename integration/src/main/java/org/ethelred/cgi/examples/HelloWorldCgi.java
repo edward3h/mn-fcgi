@@ -16,7 +16,7 @@ public class HelloWorldCgi
     public static void main(String[] args)
     {
         CgiServer server = new PlainCgiServer();
-        server.init();
+        server.init(CgiServer.Callback.ignore());
         server.start(new HelloWorldHandler());
         server.waitForCompletion(5, TimeUnit.SECONDS);
     }

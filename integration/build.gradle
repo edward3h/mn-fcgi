@@ -34,6 +34,7 @@ distributions {
             from('build/scripts') {
                 into 'bin'
             }
+            from(sourceSets.main.resources)
         }
     }
 }
@@ -71,17 +72,25 @@ task dockerStart(type: Exec) {
     commandLine(args)
 }
 
-task nativeImage(type: Exec) {
-    dependsOn installDist, dockerStart
-    onlyIf { !project.hasProperty("noDetach") }
-    commandLine(
-            "docker", "exec", containerName,
-            "native-image", "--no-fallback", "--allow-incomplete-classpath",
-            "-cp", fileTree("$buildDir/install/integration/lib").asPath.replaceAll("$buildDir/install/integration", "/var/www/html/test"),
-            "org.ethelred.cgi.examples.HelloWorldFcgi",
-            "/var/www/html/test/native/hello_world.fcgi"
-    )
+[
+        'HelloWorldFcgi': 'hello_world.fcgi',
+        'ParamsFcgi': 'params.fcgi'
+].each { className, appName ->
+    task "nativeImageClass$className"(type: Exec) {
+        dependsOn installDist, dockerStart
+        onlyIf { !project.hasProperty("noDetach") }
+        commandLine(
+                "docker", "exec", containerName,
+                "native-image", "--no-fallback", "--allow-incomplete-classpath",
+                "-cp", fileTree("$buildDir/install/integration/lib").asPath.replaceAll("$buildDir/install/integration", "/var/www/html/test"),
+                "org.ethelred.cgi.examples.$className",
+                "/var/www/html/test/native/$appName"
+        )
+    }
 }
 
+task nativeImage {
+    dependsOn tasks.matching { it.name.startsWith "nativeImageClass" }
+}
 
 test.dependsOn dockerStart, nativeImage

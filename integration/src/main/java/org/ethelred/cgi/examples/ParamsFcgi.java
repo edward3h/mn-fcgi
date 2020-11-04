@@ -11,13 +11,13 @@ import java.util.concurrent.TimeUnit;
  * @author eharman
  * @since 2020-10-15
  */
-public class HelloWorldFcgi
+public class ParamsFcgi
 {
     public static void main(String[] args)
     {
         CgiServer server = new LibFCGIServer();
         server.init(CgiServer.Callback.ignore());
-        server.start(new HelloWorldHandler());
+        server.start(new ParamsHandler());
         server.waitForCompletion(5, TimeUnit.SECONDS);
     }
 }

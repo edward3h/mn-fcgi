@@ -51,7 +51,7 @@ public class LibFCGIServer implements CgiServer
 
 
     @Override
-    public void init()
+    public void init(Callback callback)
     {
         if (_checkTransition(State.CONSTRUCTED, State.INITIALIZED)) {
             FCGX_Init();
@@ -101,6 +101,12 @@ public class LibFCGIServer implements CgiServer
         {
             //ignore
         }
+    }
+
+    @Override
+    public boolean isRunning()
+    {
+        return state.get() == State.RUNNING;
     }
 
     private class Worker implements Runnable {
