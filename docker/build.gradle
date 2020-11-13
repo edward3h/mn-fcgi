@@ -1,0 +1,33 @@
+plugins {
+    id 'com.bmuschko.docker-remote-api' version '6.6.1'
+}
+
+import com.bmuschko.gradle.docker.tasks.container.*
+import com.bmuschko.gradle.docker.tasks.image.*
+
+task buildImage(type: DockerBuildImage) {
+    inputDir = file('docker')
+    images.add(imageName)
+}
+
+task cleanContainer(type: DockerRemoveContainer) {
+    targetContainerId project.containerName
+    force = true
+    onError { logger.warn(it.message) }
+}
+
+task createContainer(type: DockerCreateContainer) {
+    dependsOn buildImage, cleanContainer
+    targetImageId buildImage.imageId
+    containerName = project.containerName
+    hostConfig.binds = ["$rootProject.projectDir": "/app"]
+    hostConfig.autoRemove = true
+    hostConfig.portBindings = ["$httpExternalPort:80"]
+}
+
+task startContainer(type: DockerStartContainer) {
+    dependsOn createContainer
+    targetContainerId createContainer.containerId
+}
+
+clean.dependsOn cleanContainer

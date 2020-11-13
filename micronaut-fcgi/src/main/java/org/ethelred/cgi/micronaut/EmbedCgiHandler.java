@@ -118,6 +118,7 @@ public class EmbedCgiHandler implements CgiHandler
         _callback(request);
         final MutableHttpResponse<Object> res = new CgiHttpResponse(request);
         final HttpRequest<Object> req = new CgiHttpRequest(request);
+        LOG.info("new request {} {}", req.getMethodName(), req.getPath());
         try {
             final List<UriRouteMatch<Object, Object>> matchingRoutes = router.findAllClosest(req);
             if (CollectionUtils.isNotEmpty(matchingRoutes)) {
@@ -217,7 +218,7 @@ public class EmbedCgiHandler implements CgiHandler
             {
                 // new URI(scheme, null, host, connector.getLocalPort(), path, null, null);
                 URI url = new URI(
-                        request.getRequiredParam(CgiParam.SERVER_PROTOCOL),
+                        "http",// TODOrequest.getRequiredParam(CgiParam.SERVER_PROTOCOL),
                         null,
                         request.getRequiredParam(CgiParam.SERVER_NAME),
                         Integer.parseInt(request.getRequiredParam(CgiParam.SERVER_PORT)),
@@ -418,11 +419,11 @@ public class EmbedCgiHandler implements CgiHandler
                                         encodeResponse(annotationMetadata, (CgiHttpResponse) o);
                                         return res;
                                     } else {
-//                                        ServletHttpResponse<Res, ? super Object> res1 = exchange.getResponse();
-//                                        res1.body(o);
-//                                        encodeResponse(exchange, annotationMetadata, response);
-//                                        return res1;
-                                        throw new IllegalStateException();
+                                        res.body(o);
+                                        encodeResponse(annotationMetadata, (CgiHttpResponse) response);
+                                        return res;
+//                                        LOG.error("What is o {} {} what is response {} what is res {}", o.getClass(), o, response, res);
+//                                        throw new IllegalStateException("I don't know what should happen here");
                                     }
                                 }).switchIfEmpty(Flowable.defer(() -> {
                                     final RouteMatch<Object> errorRoute = lookupStatusRoute(route, HttpStatus.NOT_FOUND);

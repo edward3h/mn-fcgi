@@ -1,4 +1,4 @@
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ native/params.fcgi?page=$1 [QSA,E=REQUEST_CONTEXT:/test]
+RewriteRule ^(.*)$ native/params.fcgi?page=$1 [QSA,E=REQUEST_CONTEXT:/integration]

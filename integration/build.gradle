@@ -1,7 +1,9 @@
 plugins {
     id 'java'
     id 'distribution'
+    id 'com.bmuschko.docker-remote-api' version '6.6.1'
 }
+import com.bmuschko.gradle.docker.tasks.container.*
 
 dependencies {
     implementation project(":cgi-api"), project(':plain-cgi'), project(':libfcgi-graal'), project(':html-writer')
@@ -39,53 +41,28 @@ distributions {
     }
 }
 
-ext {
-    imageName = "integration"
-    containerName = "rosie"
-    httpExternalPort = 8088
-}
-
-task dockerStop(type: Exec) {
-    ignoreExitValue true
-    commandLine("docker", "exec", containerName, "apache2ctl", "stop")
-}
-
-task dockerBuild(type: Exec) {
-    dependsOn dockerStop
-    commandLine("docker", "build", "-t", imageName, "$projectDir/docker")
-}
-
-task dockerStart(type: Exec) {
-    dependsOn dockerBuild, installDist
-    outputs.dir("$buildDir/logs")
-    def args = ["docker", "run"]
-    if (!project.hasProperty("noDetach")) {
-        args.addAll("-d", "--rm")
-    }
-    args.addAll(
-            "--name", containerName,
-            "-p", "$httpExternalPort:80",
-            "--mount", "type=bind,source=$buildDir/install/integration,target=/var/www/html/test",
-            "--mount", "type=bind,source=$buildDir/logs,target=/var/log/apache2",
-            imageName
-    )
-    commandLine(args)
+task linkWebDir(type: DockerExecContainer) {
+    dependsOn ":docker:startContainer"
+    targetContainerId project.containerName
+    workingDir = "/app"
+    withCommand("ln", "-s", "$buildDir/install/integration".replaceAll("$rootProject.projectDir", "/app"), "$apacheRoot/")
 }
 
 [
         'HelloWorldFcgi': 'hello_world.fcgi',
         'ParamsFcgi': 'params.fcgi'
 ].each { className, appName ->
-    task "nativeImageClass$className"(type: Exec) {
-        dependsOn installDist, dockerStart
-        onlyIf { !project.hasProperty("noDetach") }
-        commandLine(
-                "docker", "exec", containerName,
+    task "nativeImageClass$className"(type: DockerExecContainer) {
+        dependsOn installDist, ":docker:startContainer", linkWebDir
+        targetContainerId project.containerName
+        workingDir = "/app"
+        withCommand(
+                [
                 "native-image", "--no-fallback", "--allow-incomplete-classpath",
-                "-cp", fileTree("$buildDir/install/integration/lib").asPath.replaceAll("$buildDir/install/integration", "/var/www/html/test"),
+                "-cp", fileTree("$buildDir/install/integration/lib").asPath.replaceAll("$rootProject.projectDir", "/app"),
                 "org.ethelred.cgi.examples.$className",
-                "/var/www/html/test/native/$appName"
-        )
+                "$apacheRoot/integration/native/$appName"
+        ])
     }
 }
 
@@ -93,4 +70,4 @@ task nativeImage {
     dependsOn tasks.matching { it.name.startsWith "nativeImageClass" }
 }
 
-test.dependsOn dockerStart, nativeImage
+test.dependsOn ":docker:startContainer", nativeImage

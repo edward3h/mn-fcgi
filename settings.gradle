@@ -15,4 +15,5 @@ include 'html-writer'
 include 'integration'
 include 'micronaut-fcgi'
 include 'integration-mn'
+include 'docker'
 

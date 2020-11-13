@@ -1,0 +1,9 @@
+= Micronaut Integration Test
+
+How to fake out CGI from command line:
+
+[source]
+----
+echo '' | SERVER_NAME=localhost SERVER_PORT=8088 REQUEST_METHOD=GET REQUEST_URI=/hello/John gw run
+----
+

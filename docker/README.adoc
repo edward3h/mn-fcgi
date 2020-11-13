@@ -1,0 +1,4 @@
+= Docker image
+
+CGI and FCGI are not standalone servers. The docker image includes Apache and relevant modules to handle http and call
+the CGI/FCGI processes. Also GraalVM SDK for building.

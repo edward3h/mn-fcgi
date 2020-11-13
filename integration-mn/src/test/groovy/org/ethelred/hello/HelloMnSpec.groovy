@@ -1,19 +1,25 @@
 package org.ethelred.hello
 
-import io.micronaut.runtime.EmbeddedApplication
+import io.micronaut.http.client.RxHttpClient
+import io.micronaut.http.client.annotation.Client
 import io.micronaut.test.extensions.spock.annotation.MicronautTest
+import spock.lang.Shared
 import spock.lang.Specification
+
 import javax.inject.Inject
 
 @MicronautTest
 class HelloMnSpec extends Specification {
-
+    @Shared
+    @Client("http://localhost:8088/integration-mn")
     @Inject
-    EmbeddedApplication<?> application
+    RxHttpClient httpClient;
 
-    void 'test it works'() {
-        expect:
-        application.running
+    def "test say hello"() {
+        when:
+        String result = httpClient.toBlocking().retrieve("/hi");
+
+        then:
+        result == "Hello world!"
     }
-
 }

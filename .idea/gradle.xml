@@ -14,6 +14,7 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/cgi-api" />
+            <option value="$PROJECT_DIR$/docker" />
             <option value="$PROJECT_DIR$/html-writer" />
             <option value="$PROJECT_DIR$/integration" />
             <option value="$PROJECT_DIR$/integration-mn" />

@@ -69,6 +69,10 @@ public class LibFCGIServer implements CgiServer
                     executor.execute(new Worker(handler));
                 } catch (InterruptedException ignore) {
                     // ignore
+                } catch (Exception e) {
+                    log.error(
+                            "Unhandled worker exception", e
+                    );
                 }
             }
         }

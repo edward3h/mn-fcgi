@@ -26,9 +26,11 @@ public class CgiServerFactory implements Supplier<CgiServer>
                 if (LibFCGI.FCGX_IsCGI() > 0)
                 {
                     instance = new PlainCgiServer();
+                    LOG.info("Using Plain CGI");
                 } else
                 {
                     instance = new LibFCGIServer();
+                    LOG.info("Using libfcgi");
                 }
             } catch (Throwable e) {
                 LOG.warn("Error evaluating CGI type, will default to plain CGI", e);

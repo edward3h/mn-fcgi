@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
  * @author eharman
  * @since 2020-10-08
  */
-@Controller("/hello")
+@Controller("/hi")
 public class HelloController
 {
     static Logger log = LoggerFactory.getLogger(HelloController.class);
@@ -26,7 +26,7 @@ public class HelloController
     @Get
     @Produces(MediaType.TEXT_PLAIN)
     public String index() {
-        log.info("Called /hello");
+        log.info("Called /hi");
         return "Hello world!";
     }
 }

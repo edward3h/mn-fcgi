@@ -15,7 +15,7 @@ import spock.lang.Unroll
  */
 class CgiSpec extends Specification {
     @Rule Gru<Http> gru = Gru.equip(Http.steal(this))
-            .prepare('http://localhost:8088/test/')
+            .prepare('http://localhost:8088/integration/')
 
     @Unroll
     def "get request #page to contain #expectedText"(page, expectedText) {

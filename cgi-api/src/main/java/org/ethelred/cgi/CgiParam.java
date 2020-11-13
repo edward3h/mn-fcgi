@@ -12,7 +12,7 @@ public enum CgiParam implements ParamName
     REQUEST_METHOD,
     QUERY_STRING,
     CONTENT_LENGTH, // set if and only if there is a request body
-    REQUEST_URI, CONTENT_TYPE, SERVER_PROTOCOL, SERVER_NAME, SERVER_PORT;
+    REQUEST_URI, CONTENT_TYPE, SERVER_PROTOCOL, SERVER_NAME, SERVER_PORT, HTTPS;
 
 
     @Override

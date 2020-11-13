@@ -19,5 +19,10 @@ subprojects {
         useJUnitPlatform()
     }
 
-    version '0.1'
+    version '0.1-SNAPSHOT'
+    ext {
+        imageName = "fcgi-integration"
+        containerName = "rosie"
+        httpExternalPort = 8088
+    }
 }
